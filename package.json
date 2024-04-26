@@ -1,0 +1,30 @@
+{
+    "name": "create-tsup",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsup"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "consola": "^3.2.3",
+        "execa": "^8.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.12.7",
+        "typescript": "^5.4.5",
+        "type-fest": "^4.17.0",
+        "tsup": "^8.0.2"
+    },
+    "bin": {
+        "create-tsup": "bin/index.js"
+    },
+    "files": [
+        "./dist",
+        "./bin"
+    ]
+}
