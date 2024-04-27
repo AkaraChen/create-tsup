@@ -5,7 +5,8 @@
     "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsup"
+        "build": "tsup",
+        "fmt": "prettier --write ."
     },
     "keywords": [],
     "author": "",
@@ -16,9 +17,10 @@
     },
     "devDependencies": {
         "@types/node": "^20.12.7",
-        "typescript": "^5.4.5",
+        "prettier": "^3.2.5",
+        "tsup": "^8.0.2",
         "type-fest": "^4.17.0",
-        "tsup": "^8.0.2"
+        "typescript": "^5.4.5"
     },
     "bin": {
         "create-tsup": "bin/index.js"
