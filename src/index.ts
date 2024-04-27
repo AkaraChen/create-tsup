@@ -2,7 +2,7 @@
 
 import consola from 'consola'
 import { $ as $$ } from 'execa'
-import { accessSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { PackageJson } from 'type-fest'
@@ -24,7 +24,7 @@ const pkgManager = userAgent.split('/')[0]
 consola.info(`Using package manager: ${pkgManager}`)
 
 const packageJsonPath = path.resolve(cwd, 'package.json')
-if (!fs.access(packageJsonPath)) {
+if (!existsSync(packageJsonPath)) {
     switch (pkgManager) {
         case 'npm':
             await $`npm init -y`
@@ -89,13 +89,7 @@ const tryEntrys = [
     './index.ts',
     './index.js',
 ]
-let entryPoint = tryEntrys.find(entry => {
-    try {
-        return accessSync(path.resolve(cwd, entry))
-    } catch (error) {
-        return false
-    }
-})
+let entryPoint = tryEntrys.find(existsSync)
 
 if (!entryPoint) {
     entryPoint = './src/index.ts'
