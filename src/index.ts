@@ -37,8 +37,14 @@ if (!existsSync(packageJsonPath)) {
             break
     }
 }
-const packageJsonContent = await fs.readFile(packageJsonPath, 'utf-8')
-const packageJson: PackageJson = JSON.parse(packageJsonContent)
+
+const getPackageJson = async () => {
+    return JSON.parse(
+        await fs.readFile(packageJsonPath, 'utf-8'),
+    ) as PackageJson
+}
+
+let packageJson: PackageJson = await getPackageJson()
 
 const deps = [
     packageJson.dependencies,
@@ -66,6 +72,8 @@ if (missingDeps.length > 0) {
             break
     }
 }
+
+packageJson = await getPackageJson()
 
 await fs.writeFile(
     packageJsonPath,
