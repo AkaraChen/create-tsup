@@ -6,35 +6,27 @@ import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { PackageJson } from 'type-fest'
+import { addDevDependency } from 'nypm'
+import {
+    PackageManagerName,
+    getPackageManagerByUserAgent,
+} from '@akrc/monorepo-tools'
 
 const $ = $$({ shell: true })
-const error = (msg: string) => {
-    consola.error(msg)
-    process.exit(1)
-}
 const cwd = process.cwd()
 
 consola.info('Current working directory: ', cwd)
 
-const userAgent = process.env.npm_config_user_agent
-if (!userAgent) {
-    error('Cannot detect package manager')
-}
-const pkgManager = userAgent.split('/')[0]
+const pkgManager = getPackageManagerByUserAgent()
 consola.info(`Using package manager: ${pkgManager}`)
 
 const packageJsonPath = path.resolve(cwd, 'package.json')
+
 if (!existsSync(packageJsonPath)) {
-    switch (pkgManager) {
-        case 'npm':
-            await $`npm init -y`
-            break
-        case 'yarn':
-            await $`yarn init -y`
-            break
-        case 'pnpm':
-            await $`pnpm init`
-            break
+    if (pkgManager === PackageManagerName.PNPM) {
+        await $`pnpm init`
+    } else {
+        await $`${pkgManager} init -y`
     }
 }
 
@@ -59,18 +51,10 @@ const requiredDeps = ['typescript', 'tsup', 'tslib']
 const missingDeps = requiredDeps.filter(dep => !deps.includes(dep))
 if (missingDeps.length > 0) {
     consola.info('Missing dependencies: ', missingDeps)
-
-    switch (pkgManager) {
-        case 'npm':
-            await $`npm install -D ${missingDeps.join(' ')}`
-            break
-        case 'yarn':
-            await $`yarn add -D ${missingDeps.join(' ')}`
-            break
-        case 'pnpm':
-            await $`pnpm add -D ${missingDeps.join(' ')}`
-            break
-    }
+    await addDevDependency(missingDeps, {
+        cwd,
+        packageManager: pkgManager,
+    })
 }
 
 packageJson = await getPackageJson()
@@ -103,7 +87,7 @@ if (!entryPoint) {
     entryPoint = './src/index.ts'
     await fs.mkdir(path.resolve(cwd, 'src'), { recursive: true })
     await fs.writeFile(
-        path.resolve(cwd, 'src/index.ts'),
+        path.resolve(entryPoint),
         `
 console.log('Hello, world!')
 `.trim(),
@@ -112,9 +96,18 @@ console.log('Hello, world!')
 }
 
 consola.info('Entry point: ', entryPoint)
-await fs.writeFile(
-    path.resolve(cwd, 'tsup.config.ts'),
-    `
+const tsupConfigPath = path.resolve(cwd, 'tsup.config.ts')
+if (existsSync(tsupConfigPath)) {
+    const next = await consola.prompt(
+        'tsup.config.ts already exists, do you want to overwrite it?',
+        {
+            type: 'confirm',
+        },
+    )
+    if (next) {
+        await fs.writeFile(
+            tsupConfigPath,
+            `
 import { defineConfig } from "tsup";
 
 export default defineConfig({
@@ -123,5 +116,9 @@ export default defineConfig({
   dts: true,
 });
 `.trim(),
-)
-consola.success('Created tsup.config.ts')
+        )
+        consola.success('Created tsup.config.ts')
+    } else {
+        consola.error('Aborted')
+    }
+}

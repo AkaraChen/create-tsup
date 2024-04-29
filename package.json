@@ -12,8 +12,10 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@akrc/monorepo-tools": "^1.2.1",
         "consola": "^3.2.3",
-        "execa": "^8.0.1"
+        "execa": "^8.0.1",
+        "nypm": "^0.3.8"
     },
     "devDependencies": {
         "@types/node": "^20.12.7",
