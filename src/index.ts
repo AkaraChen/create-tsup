@@ -104,10 +104,15 @@ if (existsSync(tsupConfigPath)) {
             type: 'confirm',
         },
     )
-    if (next) {
-        await fs.writeFile(
-            tsupConfigPath,
-            `
+    if (!next) {
+        consola.error('Aborted')
+        process.exit(1)
+    }
+}
+
+await fs.writeFile(
+    tsupConfigPath,
+    `
 import { defineConfig } from "tsup";
 
 export default defineConfig({
@@ -116,9 +121,5 @@ export default defineConfig({
   dts: true,
 });
 `.trim(),
-        )
-        consola.success('Created tsup.config.ts')
-    } else {
-        consola.error('Aborted')
-    }
-}
+)
+consola.success('Created tsup.config.ts')
