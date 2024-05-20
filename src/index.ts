@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import consola from 'consola'
 import { $ as $$ } from 'execa'
 import { existsSync } from 'node:fs'
