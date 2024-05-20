@@ -13,6 +13,8 @@ import {
 const $ = $$({ shell: true })
 const cwd = process.cwd()
 
+const allow = process.argv.includes('-y')
+
 consola.info('Current working directory: ', cwd)
 
 const pkgManager = getPackageManagerByUserAgent()
@@ -95,7 +97,7 @@ console.log('Hello, world!')
 
 consola.info('Entry point: ', entryPoint)
 const tsupConfigPath = path.resolve(cwd, 'tsup.config.ts')
-if (existsSync(tsupConfigPath)) {
+if (!allow && existsSync(tsupConfigPath)) {
     const next = await consola.prompt(
         'tsup.config.ts already exists, do you want to overwrite it?',
         {
